@@ -4,3 +4,4 @@ fastapi==0.115.8
 uvicorn==0.34.0
 langchain-openai==0.3.3
 langchain-core==0.3.33
+python-dotenv==1.0.1

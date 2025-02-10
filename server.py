@@ -1,11 +1,20 @@
 from fastapi import FastAPI
-from typing import Optional
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import ChatOpenAI
+from fastapi.responses import StreamingResponse
 
+from dotenv import load_dotenv
+
+load_dotenv()
 # FastAPI 인스턴스 생성
+
 app = FastAPI()
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+chain = llm | StrOutputParser()
 
 
-# GET 요청을 처리하는 엔드포인트
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the FastAPI example!"}
+@app.get("/invoke")
+def sync_chat(message: str):
+    response = chain.invoke(message)
+    return response
