@@ -1,0 +1,41 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Docker Image
+        run: |
+          TAG=$(git rev-parse --short HEAD)
+          docker buildx build --push \
+            --cache-from=type=registry,ref=${{ secrets.DOCKER_USERNAME }}/logit_langchain:latest \
+            --cache-to=type=inline \
+            -t ${{ secrets.DOCKER_USERNAME }}/logit_langchain:latest \
+            -t ${{ secrets.DOCKER_USERNAME }}/logit_langchain:$TAG .
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ubuntu/logit
+            sh run.sh
+          EOF
+          rm ~/.ssh/id_rsa
