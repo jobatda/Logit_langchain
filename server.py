@@ -50,7 +50,7 @@ async def create_travel_plan(request: TravelRequest):
     with_image = googMoonGetData(apiInput)
 
     if (with_image is None) or (len(with_image) == 0):
-        print("데이터가 없습니다.")  # 데이터 없으니깐 프론트에 데이터 없다고 알려줘야함
+        return { "output": "" }  # 데이터 없으니깐 프론트에 데이터 없다고 알려줘야함
 
     filtered_data = []
 
@@ -62,6 +62,9 @@ async def create_travel_plan(request: TravelRequest):
                 filtered_data.append(item)
         else:
             continue
+
+    if filtered_data:
+        return { "output": "" }
     #  filtered_data 검사 후 데이터 없으면 데이터 없다고 알려줘야함
     data_without_imgUrl = [
         {k: v for k, v in item.items() if k != "imgUrl"} for item in filtered_data
@@ -69,8 +72,9 @@ async def create_travel_plan(request: TravelRequest):
 
     # result = None
 
-    if data_without_imgUrl is None:
-        print("No data found")  # 추천할 데이터가 없다
+    if len(data_without_imgUrl) == 0:
+        return { "output": "" }  # 추천할 데이터가 없다
+    
     result = chain.invoke({"question": question, "context": data_without_imgUrl})
 
     place_to_imgUrl = {item["장소명"]: item["imgUrl"] for item in with_image}
