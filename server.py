@@ -51,10 +51,6 @@ async def create_travel_plan(request: TravelRequest):
     duration = request.duration
     theme = request.theme
 
-    print(region)
-    print(duration)
-    print(theme)
-
     question_format = "지역: {location}, 기간: {date}, 테마: {theme}"
     question = question_format.format(location=region, date=duration, theme=theme)
 
@@ -78,7 +74,7 @@ async def create_travel_plan(request: TravelRequest):
         else:
             continue
 
-    if filtered_data:
+    if len(filtered_data) == 0:
         return { "output": "2" }
     #  filtered_data 검사 후 데이터 없으면 데이터 없다고 알려줘야함
     data_without_imgUrl = [
