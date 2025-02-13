@@ -7,10 +7,21 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from typing import List
 from utils import googMoonGetData, googMoonExtract_info, extract_first_word
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credential=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 model = ChatOpenAI(model="gpt-4o-mini", temperature=0.5)
 
