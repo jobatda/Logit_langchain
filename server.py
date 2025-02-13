@@ -51,6 +51,10 @@ async def create_travel_plan(request: TravelRequest):
     duration = request.duration
     theme = request.theme
 
+    print(region)
+    print(duration)
+    print(theme)
+
     question_format = "지역: {location}, 기간: {date}, 테마: {theme}"
     question = question_format.format(location=region, date=duration, theme=theme)
 
